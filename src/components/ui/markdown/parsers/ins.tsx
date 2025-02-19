@@ -1,10 +1,10 @@
 import type { MarkdownToJSX } from 'markdown-to-jsx'
 import {
-  Priority,
   parseCaptureInline,
+  Priority,
   simpleInlineRegex,
 } from 'markdown-to-jsx'
-import React from 'react'
+import * as React from 'react'
 
 //  ++Insert++
 export const InsertRule: MarkdownToJSX.Rule = {

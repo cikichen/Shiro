@@ -1,5 +1,5 @@
-import React from 'react'
 import type { SVGProps } from 'react'
+import * as React from 'react'
 
 export function IcRoundKeyboardDoubleArrowRight(
   props: SVGProps<SVGSVGElement>,

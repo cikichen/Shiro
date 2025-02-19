@@ -1,5 +1,5 @@
-import React from 'react'
 import type { FC } from 'react'
+import * as React from 'react'
 
 import { PhSunBold } from '~/components/icons/appearance'
 import {

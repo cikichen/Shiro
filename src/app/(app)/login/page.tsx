@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 import { StyledButton } from '~/components/ui/button'
 import { Input } from '~/components/ui/input/Input'
@@ -15,17 +15,17 @@ export default function LoginPage() {
   const handleLogin = async (e: any) => {
     e.preventDefault()
     const { login } = await import('~/atoms/owner')
-    login(username, password).then(() => {
-      const redirectPath = new URLSearchParams(location.search).get('redirect')
-      if (redirectPath) {
-        router.push(decodeURIComponent(redirectPath))
-      } else {
-        router.push(Routes.Home)
-      }
-    })
+    await login(username, password)
+
+    const redirectPath = new URLSearchParams(location.search).get('redirect')
+    if (redirectPath) {
+      router.push(decodeURIComponent(redirectPath))
+    } else {
+      router.push(Routes.Home)
+    }
   }
   return (
-    <div className="flex min-h-[calc(100vh-7rem)] center">
+    <div className="center flex min-h-[calc(100vh-7rem)]">
       <form className="flex flex-col space-y-5" onSubmit={handleLogin}>
         <Input
           autoFocus
@@ -41,7 +41,7 @@ export default function LoginPage() {
           placeholder="Password"
         />
 
-        <div className="flex center">
+        <div className="center flex">
           <StyledButton disabled={!username || !password} onClick={handleLogin}>
             Login
           </StyledButton>

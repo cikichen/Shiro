@@ -1,10 +1,13 @@
 'use client'
 
-import React, { memo, useRef } from 'react'
 import clsx from 'clsx'
 import mediumZoom from 'medium-zoom'
+import Image from 'next/image'
 import type { FC } from 'react'
+import * as React from 'react'
+import { memo, useRef } from 'react'
 
+import { LazyLoad } from '~/components/common/Lazyload'
 import { addImageUrlResizeQuery } from '~/lib/image'
 import { isVideoExt } from '~/lib/mine-type'
 import { useMarkdownImageRecord } from '~/providers/article/MarkdownImageRecordProvider'
@@ -16,7 +19,7 @@ import {
 import { Divider } from '../../divider/Divider'
 import { FixedZoomedImage } from '../../image/ZoomedImage'
 
-export const MarkdownImage = (props: any) => {
+export const MarkdownImage = (props: { src: string; alt?: string }) => {
   const { src, alt } = props
   const nextProps = {
     ...props,
@@ -24,11 +27,11 @@ export const MarkdownImage = (props: any) => {
   nextProps.alt = alt?.replace(/^[¡!]/, '')
   const { w } = useWrappedElementSize()
 
-  const ext = src.split('.').pop()
+  const ext = src.split('.').pop()!
   if (isVideoExt(ext)) {
     const figcaption = alt?.replace(/^[¡!]/, '')
     return (
-      <div>
+      <div className="flex flex-col items-center">
         <video src={src} controls playsInline autoPlay={false} />
         {figcaption && (
           <p className="mt-1 flex flex-col items-center justify-center text-sm">
@@ -46,7 +49,7 @@ export const MarkdownImage = (props: any) => {
 export const GridMarkdownImage = (props: any) => {
   return (
     <WrappedElementProvider>
-      <div className="relative flex min-w-0 flex-grow">
+      <div className="relative flex min-w-0 grow">
         <MarkdownImage {...props} />
       </div>
     </WrappedElementProvider>
@@ -56,9 +59,15 @@ export const GridMarkdownImage = (props: any) => {
 export const GridMarkdownImages: FC<{
   imagesSrc: string[]
   Wrapper: Component
-}> = ({ imagesSrc, Wrapper }) => {
+  height: number
+}> = ({ imagesSrc, Wrapper, height = 1 }) => {
   return (
-    <div className="relative pb-[100%]">
+    <div
+      className="relative"
+      style={{
+        paddingBottom: `${height * 100}%`,
+      }}
+    >
       <Wrapper className="absolute inset-0">
         {imagesSrc.map((src) => {
           return <GridZoomImage key={src} src={src} />
@@ -70,33 +79,38 @@ export const GridMarkdownImages: FC<{
 
 const GridZoomImage: FC<{ src: string }> = memo(({ src }) => {
   const { accent, height, width } = useMarkdownImageRecord(src) || {}
-  const cropUrl = addImageUrlResizeQuery(src, 300)
+  const cropUrl = addImageUrlResizeQuery(src, 600)
   const imageEl = useRef<HTMLImageElement>(null)
   const wGreaterThanH = width && height ? width > height : true
 
+  const ImageComponent = height && width ? Image : 'img'
+
   return (
     <div
-      className="relative flex h-full w-full overflow-hidden rounded-md bg-cover bg-center center"
+      className="center relative flex size-full overflow-hidden rounded-md bg-cover bg-center"
       style={{
         backgroundColor: accent,
       }}
     >
-      <img
-        alt=""
-        height={height}
-        width={width}
-        src={cropUrl}
-        ref={imageEl}
-        className={clsx(
-          '!mx-0 !my-0 max-w-max object-cover',
-          wGreaterThanH ? 'h-full' : 'w-full',
-        )}
-        data-zoom-src={src}
-        onClick={() => {
-          if (!imageEl.current) return
-          mediumZoom(imageEl.current).open()
-        }}
-      />
+      <LazyLoad offset={30}>
+        <ImageComponent
+          loading="lazy"
+          alt=""
+          height={height}
+          width={width}
+          src={cropUrl}
+          ref={imageEl}
+          className={clsx(
+            '!m-0 max-w-max object-cover',
+            wGreaterThanH ? 'h-full' : 'w-full',
+          )}
+          data-zoom-src={src}
+          onClick={() => {
+            if (!imageEl.current) return
+            mediumZoom(imageEl.current).open()
+          }}
+        />
+      </LazyLoad>
     </div>
   )
 })
